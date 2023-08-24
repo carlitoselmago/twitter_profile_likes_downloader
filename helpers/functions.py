@@ -6,15 +6,13 @@ from pathlib import Path
 import urllib.request
 import configparser
 import os
-#from selenium import webdriver
+from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import sleep
-import undetected_chromedriver as uc
-import chromedriver_autoinstaller
-chromedriver_autoinstaller.install()
+
 
 downloadfolder="downloaded/"
 
@@ -35,28 +33,15 @@ def downloadmedia(url,user):
     full_path = destfolder+'/' + file_name# + '.jpg'
     urllib.request.urlretrieve(url, full_path)
     
-def download_video():
-    video_url = driver.find_element_by_xpath('//video[@id="video_id"]/source').get_attribute('src')
-
-    # download the video
-    r = requests.get(video_url, stream = True)
-
-    # check if the request is successful.
-    if r.status_code == 200:
-        # set video file paths
-        path = os.getcwd()
-        path += '/your_video.mp4'
-        
-        # start download
-        with open(path, 'wb') as f:
-            f.write(r.content)
-            
-    driver.close()
+def download_video(tweet_url,user):
+    #TODO
+    #uses yt-dlp
+    #yt-dlp https://video.twimg.com/ext_tw_video/1402199786313424898/pu/pl/p3a4JwGkun5ruVYR.m3u8?variant_version=1&tag=12&container=fmp4
 
 def download_video_sellenium(tweet_url,user):
-    #browser = webdriver.Firefox()
+    browser = webdriver.Firefox()
   
-    browser = uc.Chrome(headless=False,use_subprocess=True)
+    #browser = uc.Chrome(headless=False,use_subprocess=True)
     wait = WebDriverWait(browser, 30)
     browser.get('https://twittervideodownloader.com/')
 
