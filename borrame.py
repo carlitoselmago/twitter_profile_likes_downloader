@@ -1,3 +1,5 @@
 from helpers.functions import *
+from seleniumwire import webdriver
 
-download_video("https://twitter.com/xtcblar/status/1692452160691482672","test")
+browser = webdriver.Firefox()
+download_video("https://twitter.com/dantheboxingman/status/1694717116778430842","test")

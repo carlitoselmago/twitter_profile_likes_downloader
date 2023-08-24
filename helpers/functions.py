@@ -12,6 +12,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import sleep
+from urllib.parse import urlparse
+#from seleniumwire import webdriver
+from yt_dlp import YoutubeDL
 
 
 downloadfolder="downloaded/"
@@ -33,63 +36,39 @@ def downloadmedia(url,user):
     full_path = destfolder+'/' + file_name# + '.jpg'
     urllib.request.urlretrieve(url, full_path)
     
-def download_video(tweet_url,user):
-    #TODO
-    #uses yt-dlp
-    #yt-dlp https://video.twimg.com/ext_tw_video/1402199786313424898/pu/pl/p3a4JwGkun5ruVYR.m3u8?variant_version=1&tag=12&container=fmp4
-
-def download_video_sellenium(tweet_url,user):
-    browser = webdriver.Firefox()
-  
-    #browser = uc.Chrome(headless=False,use_subprocess=True)
-    wait = WebDriverWait(browser, 30)
-    browser.get('https://twittervideodownloader.com/')
-
-    cookies=wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[mode="primary"]'))).click()
-    
-    sleep(1)
-
-    tweet_input = wait.until(EC.visibility_of_element_located((By.NAME, "tweet")))
-    for character in tweet_url:
-        tweet_input.send_keys(character)
-        sleep(0.3) # pause for 0.3 seconds
-       
-    sleep(2)
-    tweet_input.send_keys(Keys.ENTER)
-
-
-
-def download_video_old(tweet_url,user):
+def download_video(browser,tweet_url,user):
+    browser.find_element(By.TAG_NAME,'body').send_keys(Keys.COMMAND + 't') 
     destfolder=userfolder(user)
-    tweet_url = tweet_url.split('?', 1)[0]
-    session = requests.Session()
-    response = session.get('http://twittervideodownloader.com')
-    print('Cookies: ', response.cookies.get_dict()) # print all cookies from the server
-    csrf = session.get('http://twittervideodownloader.com').cookies['csrftoken']
-    result = session.post('http://twittervideodownloader.com/download', data={'tweet': tweet_url, 'csrfmiddlewaretoken': csrf})
-    
-    if result.status_code == 200:
-    
-        bs = BeautifulSoup(result.text, 'html.parser')
-        video_element = bs.find('a', string='Download Video')
-        
-        if video_element is None:
-            print('video not found !')
-        else:
-            video_url = video_element['href']
-            tweet_id = tweet_url.split('/')[-1]
-            fname = tweet_id + '.mp4'
-            
-            download_result = session.get(video_url, stream = True) 
-            with open(Path(destfolder) / Path(fname), 'wb') as video_file:
-                for chunk in download_result.iter_content(chunk_size=1024*1024):
-                    # writing one chunk at a time to video file 
-                    if chunk:
-                        video_file.write(chunk)
-                video_file.close()
-    else:
-        print('an error in downloading video! status code: ' + result.status_code)
 
+    #browser = webdriver.Firefox()
+    wait = WebDriverWait(browser, 30)
+
+    browser.get(tweet_url)
+
+    sleep(1)
+    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "video")))
+    poster=browser.find_element(By.CSS_SELECTOR,'video[poster]').get_attribute("poster")
+    print("poster::::::::::::",poster)
+    parts = urlparse(poster).path.split('/')
+    i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
+    videoid = '/'.join(parts[i1:i2])
+    # Access requests via the `requests` attribute
+    for request in browser.requests:
+        if request.response:
+            if "fmp4" in request.url:
+                URLS = [request.url]
+                ydl_opts = {
+                        'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
+                    }
+                with YoutubeDL(ydl_opts) as ydl:
+                   
+                    ydl.download(URLS)
+                break
+                print(
+                    request.url,
+                    request.response.status_code,
+                    request.response.headers['Content-Type']
+                )
 
 
 def create_config(config_file_path, user, pwd):

@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import sleep
 from helpers.functions import *
+from seleniumwire import webdriver
 
 user,pwd=get_config()
 
@@ -15,7 +16,7 @@ browser.maximize_window()
 wait = WebDriverWait(browser, 30)
 browser.get('https://twitter.com/login')
 
-sleep(0.5)
+sleep(3)
 
 username_input = wait.until(EC.visibility_of_element_located((By.NAME, "text")))
 username_input.send_keys(user)
@@ -24,20 +25,20 @@ username_input.send_keys(user)
 nextbtn=WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Next')]")))
 nextbtn.click()
 
-sleep(1)
+sleep(3)
 
 #password
 username_input = wait.until(EC.visibility_of_element_located((By.NAME, "password")))
 username_input.send_keys(pwd)
 username_input.send_keys(Keys.ENTER)
 
-sleep(1)
+sleep(3)
 
 #now get to the liked posts page
 browser.get('https://twitter.com/'+user+'/likes')
 wait = WebDriverWait(browser, 30)
 
-sleep(1)
+sleep(3)
 wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "article")))
 posts=browser.find_elements(By.CSS_SELECTOR,'div[data-testid="cellInnerDiv"]')
 
@@ -73,6 +74,6 @@ for p in posts:
                 posturl=parent.get_attribute("href")
                 print("posturl",posturl)
                 
-                download_video(posturl,userid)
+                download_video(browser,posturl,userid)
 
 #sleep(60)
