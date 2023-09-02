@@ -1,4 +1,4 @@
-# Twitter profile likes
+# Twitter profile likes downloader (only media)
 
 Downloads your twitter likes media (will discard text) locally using sellenium (no need for API credentials, only your user and password)
 
