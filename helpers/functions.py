@@ -37,7 +37,14 @@ def downloadmedia(url,user):
     urllib.request.urlretrieve(url, full_path)
     
 def download_video(browser,tweet_url,user):
-    browser.find_element(By.TAG_NAME,'body').send_keys(Keys.COMMAND + 't') 
+    #open new tab
+    #browser.find_element(By.TAG_NAME,'body').send_keys(Keys.COMMAND + 't') 
+    #browser.find_element_by_tag_name('body').send_keys(Keys.CONTROL + Keys.TAB)
+    # Open a new window
+    browser.execute_script("window.open('');")
+    # Switch to the new window
+    browser.switch_to.window(browser.window_handles[1])
+
     destfolder=userfolder(user)
 
     #browser = webdriver.Firefox()
@@ -50,26 +57,30 @@ def download_video(browser,tweet_url,user):
     poster=browser.find_element(By.CSS_SELECTOR,'video[poster]').get_attribute("poster")
     print("poster::::::::::::",poster)
     parts = urlparse(poster).path.split('/')
-    i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
-    videoid = '/'.join(parts[i1:i2])
-    # Access requests via the `requests` attribute
-    for request in browser.requests:
-        if request.response:
-            if "fmp4" in request.url:
-                URLS = [request.url]
-                ydl_opts = {
-                        'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
-                    }
-                with YoutubeDL(ydl_opts) as ydl:
-                   
-                    ydl.download(URLS)
-                break
-                print(
-                    request.url,
-                    request.response.status_code,
-                    request.response.headers['Content-Type']
+    try:
+        i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
+        videoid = '/'.join(parts[i1:i2])
+        # Access requests via the `requests` attribute
+        for request in browser.requests:
+            if request.response:
+                if "fmp4" in request.url:
+                    URLS = [request.url]
+                    ydl_opts = {
+                            'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
+                        }
+                    with YoutubeDL(ydl_opts) as ydl:
+                    
+                        ydl.download(URLS)
+                    break
+                    print(
+                        request.url,
+                        request.response.status_code,
+                        request.response.headers['Content-Type']
                 )
-
+    except:
+        print("could not find amplify_video_thumb")
+    browser.close()
+    browser.switch_to.window(browser.window_handles[0])
 
 def create_config(config_file_path, user, pwd):
     config = configparser.ConfigParser()

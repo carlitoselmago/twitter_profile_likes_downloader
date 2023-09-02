@@ -62,7 +62,9 @@ for p in posts:
                     imgsrc=img.get_attribute("src")
                     if "/media/" in imgsrc:
                         print(imgsrc)
+                        
                         downloadmedia(imgsrc,userid)
+                        print("")
 
             #   video
             video_elements= p.find_elements(By.TAG_NAME, "video")
@@ -75,5 +77,6 @@ for p in posts:
                 print("posturl",posturl)
                 
                 download_video(browser,posturl,userid)
+                print("")
 
 #sleep(60)
