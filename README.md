@@ -1,10 +1,10 @@
 # Twitter profile likes
 
-Downloads your twitter likes locally using sellenium (no need for API credentials, only your user and password)
+Downloads your twitter likes media (will discard text) locally using sellenium (no need for API credentials, only your user and password)
 
 ## install
 
-Install requirements
+Install requirements.txt
 
 run 
 ```
@@ -18,3 +18,12 @@ It will make your sellenium browser look legit for twitter.
 
 Run ``` python main.py``` it will ask you to give your user and password once
 If you need to modify your user and password simply delete the file settings.ini
+
+## Known bugs
+
+It downloads duplicates of videos to the wrong folders
+
+## TODO:
+
+- Move scroll to download all posts
+- Check if already downloaded and skip

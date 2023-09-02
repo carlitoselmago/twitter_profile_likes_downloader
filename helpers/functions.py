@@ -57,28 +57,45 @@ def download_video(browser,tweet_url,user):
     poster=browser.find_element(By.CSS_SELECTOR,'video[poster]').get_attribute("poster")
     print("poster::::::::::::",poster)
     parts = urlparse(poster).path.split('/')
-    try:
-        i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
-        videoid = '/'.join(parts[i1:i2])
-        # Access requests via the `requests` attribute
-        for request in browser.requests:
-            if request.response:
-                if "fmp4" in request.url:
-                    URLS = [request.url]
-                    ydl_opts = {
-                            'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
-                        }
-                    with YoutubeDL(ydl_opts) as ydl:
-                    
-                        ydl.download(URLS)
-                    break
-                    print(
-                        request.url,
-                        request.response.status_code,
-                        request.response.headers['Content-Type']
+    is_video=True
+    #for p in parts:
+    #    print (p)
+
+    if "tweet_video_thumb" in poster:
+        #it's an animated gif  
+        is_video=False
+        filename=parts[-1].split(".")[0]+".mp4"
+        url="https://video.twimg.com/tweet_video/"+filename
+        print("gif url",url)
+        full_path=userfolder(user)+'/' +filename
+        urllib.request.urlretrieve(url, full_path)
+    else:
+        try:
+            i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
+        except:
+            i1, i2 = parts.index('ext_tw_video_thumb')+1, parts.index('img')
+              
+        if is_video:
+            videoid = '/'.join(parts[i1:i2])
+            # Access requests via the `requests` attribute
+            for request in browser.requests:
+                if request.response:
+                    if "fmp4" in request.url:
+                        URLS = [request.url]
+                        ydl_opts = {
+                                'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
+                            }
+                        with YoutubeDL(ydl_opts) as ydl:
+                        
+                            ydl.download(URLS)
+                        break
+                        print(
+                            request.url,
+                            request.response.status_code,
+                            request.response.headers['Content-Type']
                 )
-    except:
-        print("could not find amplify_video_thumb")
+    #except:
+    #    print("could not find amplify_video_thumb")
     browser.close()
     browser.switch_to.window(browser.window_handles[0])
 
