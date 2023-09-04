@@ -1,5 +1,6 @@
 *.crt
 *.exe
+*.db
 *.chromedriver
 *.ini
 downloaded/*

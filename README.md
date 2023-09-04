@@ -19,11 +19,12 @@ It will make your sellenium browser look legit for twitter.
 Run ``` python main.py``` it will ask you to give your user and password once
 If you need to modify your user and password simply delete the file settings.ini
 
+tweets saved will be stored in posts.db if you need to reset the already downloaded just delete the file posts.db
+
 ## Known bugs
 
-It downloads duplicates of videos to the wrong folders
+- 
 
 ## TODO:
 
 - Move scroll to download all posts
-- Check if already downloaded and skip

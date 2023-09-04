@@ -19,6 +19,7 @@ from yt_dlp import YoutubeDL
 
 downloadfolder="downloaded/"
 
+
 def userfolder(user):
     isExist = os.path.exists(downloadfolder+user)
     if not isExist:
@@ -77,28 +78,26 @@ def download_video(browser,tweet_url,user):
               
         if is_video:
             videoid = '/'.join(parts[i1:i2])
+            print("video ID",videoid)
             # Access requests via the `requests` attribute
             for request in browser.requests:
                 if request.response:
                     if "fmp4" in request.url:
-                        URLS = [request.url]
-                        ydl_opts = {
-                                'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
-                            }
-                        with YoutubeDL(ydl_opts) as ydl:
+                        if videoid in request.url:
+                            URLS = [request.url]
+                            ydl_opts = {
+                                    'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
+                                }
+                            with YoutubeDL(ydl_opts) as ydl:
+                                ydl.download(URLS)
+                            break
                         
-                            ydl.download(URLS)
-                        break
-                        print(
-                            request.url,
-                            request.response.status_code,
-                            request.response.headers['Content-Type']
-                )
     #except:
     #    print("could not find amplify_video_thumb")
+    
     browser.close()
     browser.switch_to.window(browser.window_handles[0])
-
+    
 def create_config(config_file_path, user, pwd):
     config = configparser.ConfigParser()
     config.add_section('Credentials')
@@ -123,5 +122,3 @@ def get_config():
         print('Settings saved in settings.ini file.')
     
     return user,pwd
-
-
