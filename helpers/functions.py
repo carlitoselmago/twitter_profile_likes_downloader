@@ -33,7 +33,8 @@ def downloadmedia(url,user):
     destfolder=userfolder(user)
     f=furl(url)
     file_name=str(f.path.segments[-1])+"."+f.args["format"]
-
+    f.set({"name":"large"})
+    url=f.url
     full_path = destfolder+'/' + file_name# + '.jpg'
     urllib.request.urlretrieve(url, full_path)
     
