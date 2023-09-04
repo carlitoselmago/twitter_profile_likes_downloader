@@ -23,7 +23,6 @@ tweets saved will be stored in posts.db if you need to reset the already downloa
 
 ## Known bugs
 
-- 
 
 ## TODO:
 
