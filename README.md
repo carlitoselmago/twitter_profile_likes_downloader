@@ -27,4 +27,4 @@ tweets saved will be stored in posts.db if you need to reset the already downloa
 ## TODO:
 
 - test headless mode
-- add options thru terminal menu to choose likes page or any other page
+- add options thru a terminal menu to choose likes page or any other page

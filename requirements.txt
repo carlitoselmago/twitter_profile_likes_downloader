@@ -1,3 +1,4 @@
 furl
 yt-dlp
+ffmpeg
 selenium-wire
