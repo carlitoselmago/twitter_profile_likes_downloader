@@ -43,57 +43,65 @@ wait = WebDriverWait(browser, 30)
 
 sleep(3)
 wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "article")))
-posts=browser.find_elements(By.CSS_SELECTOR,'div[data-testid="cellInnerDiv"]')
 
-for p in posts:
-    #get posturl as id
-    timeelem=p.find_element(By.CSS_SELECTOR,'time[datetime]')
-    parent=timeelem.find_element(By.XPATH, '..')
-    posturl=parent.get_attribute("href")
+while True:
 
-    print("PROCESS:::",posturl)
+    posts=browser.find_elements(By.CSS_SELECTOR,'div[data-testid="cellInnerDiv"]')
 
-    if not DB.postexists(posturl):
+    for p in posts:
+        #get posturl as id
+        timeelem=p.find_element(By.CSS_SELECTOR,'time[datetime]')
+        parent=timeelem.find_element(By.XPATH, '..')
+        posturl=parent.get_attribute("href")
 
-        #get userid
-        avatar=p.find_element(By.CSS_SELECTOR,'div[data-testid="Tweet-User-Avatar"]')
-        if avatar:
-            link=avatar.find_element(By.TAG_NAME, "a")
-            if link:
-                userid=link.get_attribute("href").rsplit('/', 1)[-1]
-                print(userid)
+        print("PROCESS:::",posturl)
 
-                #process media
+        if not DB.postexists(posturl):
 
-                #   images
-                img_elements = p.find_elements(By.TAG_NAME, "img")
-                if img_elements:
+            #get userid
+            avatar=p.find_element(By.CSS_SELECTOR,'div[data-testid="Tweet-User-Avatar"]')
+            if avatar:
+                link=avatar.find_element(By.TAG_NAME, "a")
+                if link:
+                    userid=link.get_attribute("href").rsplit('/', 1)[-1]
+                    print(userid)
 
+                    #process media
+
+                    #   images
+                    img_elements = p.find_elements(By.TAG_NAME, "img")
+                    if img_elements:
+
+                        
+                        for img in img_elements:
+                            imgsrc=img.get_attribute("src")
+                            if "/media/" in imgsrc:
+                                print(imgsrc)
+                                
+                                downloadmedia(imgsrc,userid)
+                                print("")
+
+                    #   video
+                    video_elements= p.find_elements(By.TAG_NAME, "video")
+                    if video_elements:
+                        print("video element!")
+                        #get post url
+                        
+                        print("posturl",posturl)
+                        
+                        download_video(browser,posturl,userid)
+                        sleep(2)
+                        print("")
                     
-                    for img in img_elements:
-                        imgsrc=img.get_attribute("src")
-                        if "/media/" in imgsrc:
-                            print(imgsrc)
-                            
-                            downloadmedia(imgsrc,userid)
-                            print("")
-
-                #   video
-                video_elements= p.find_elements(By.TAG_NAME, "video")
-                if video_elements:
-                    print("video element!")
-                    #get post url
-                    
-                    print("posturl",posturl)
-                    
-                    download_video(browser,posturl,userid)
-                    sleep(2)
-                    print("")
-                   
-        
-        DB.insertpost(posturl)
-    else:
-        print("already saved, skipping....")
+            
+            DB.insertpost(posturl)
+        else:
+            print("already saved, skipping....")
+    
+    #scroll down to grab more posts
+    browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    print("New scroll batch")
+    sleep(2)
 
 print("END:::::::::::::::::::::::::::::::::::::::::::::")
 DB.close()
