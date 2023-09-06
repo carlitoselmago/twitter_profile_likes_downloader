@@ -50,55 +50,60 @@ while True:
 
     for p in posts:
         #get posturl as id
-        timeelem=p.find_element(By.CSS_SELECTOR,'time[datetime]')
-        parent=timeelem.find_element(By.XPATH, '..')
-        posturl=parent.get_attribute("href")
+        try:
+            timeelem=p.find_element(By.CSS_SELECTOR,'time[datetime]')
+            parent=timeelem.find_element(By.XPATH, '..')
+            posturl=parent.get_attribute("href")
 
-        print("PROCESS:::",posturl)
+            print("PROCESS:::",posturl)
 
-        if not DB.postexists(posturl):
+            if not DB.postexists(posturl):
 
-            #get userid
-            avatar=p.find_element(By.CSS_SELECTOR,'div[data-testid="Tweet-User-Avatar"]')
-            if avatar:
-                link=avatar.find_element(By.TAG_NAME, "a")
-                if link:
-                    userid=link.get_attribute("href").rsplit('/', 1)[-1]
-                    print(userid)
+                #get userid
+                avatar=p.find_element(By.CSS_SELECTOR,'div[data-testid="Tweet-User-Avatar"]')
+                if avatar:
+                    link=avatar.find_element(By.TAG_NAME, "a")
+                    if link:
+                        userid=link.get_attribute("href").rsplit('/', 1)[-1]
+                        print(userid)
 
-                    #process media
+                        #process media
 
-                    #   images
-                    img_elements = p.find_elements(By.TAG_NAME, "img")
-                    if img_elements:
+                        #   images
+                        img_elements = p.find_elements(By.TAG_NAME, "img")
+                        if img_elements:
 
-                        
-                        for img in img_elements:
-                            imgsrc=img.get_attribute("src")
-                            if "/media/" in imgsrc:
-                                print(imgsrc)
-                                
-                                downloadmedia(imgsrc,userid)
+                            
+                            for img in img_elements:
+                                imgsrc=img.get_attribute("src")
+                                if "/media/" in imgsrc:
+                                    print(imgsrc)
+                                    try:
+                                        downloadmedia(imgsrc,userid)
+                                        print("")
+                                    except:
+                                        print("could not download media")
+
+                        #   video
+                        video_elements= p.find_elements(By.TAG_NAME, "video")
+                        if video_elements:
+                            print("video element!")
+                            #get post url
+                            
+                            print("posturl",posturl)
+                            try:
+                                download_video(browser,posturl,userid)
+                                sleep(2)
                                 print("")
-
-                    #   video
-                    video_elements= p.find_elements(By.TAG_NAME, "video")
-                    if video_elements:
-                        print("video element!")
-                        #get post url
+                            except:
+                                print("could not download video")
                         
-                        print("posturl",posturl)
-                        try:
-                            download_video(browser,posturl,userid)
-                            sleep(2)
-                            print("")
-                        except:
-                            print("could not download video")
-                    
-            
-            DB.insertpost(posturl)
-        else:
-            print("already saved, skipping....")
+                
+                DB.insertpost(posturl)
+            else:
+                print("already saved, skipping....")
+        except:
+            print("couldn't process post",p)
     
     #scroll down to grab more posts
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
