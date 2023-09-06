@@ -5,7 +5,7 @@ Downloads your twitter likes media (will discard text) locally using sellenium (
 ## install
 
 Install requirements.txt
-
+Install ffmpeg
 run 
 ```
 python -m seleniumwire extractcert

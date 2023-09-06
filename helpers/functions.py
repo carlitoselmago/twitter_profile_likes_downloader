@@ -19,6 +19,7 @@ from yt_dlp import YoutubeDL
 
 downloadfolder="downloaded/"
 
+final_filename = None
 
 def userfolder(user):
     isExist = os.path.exists(downloadfolder+user)
@@ -37,8 +38,15 @@ def downloadmedia(url,user):
     url=f.url
     full_path = destfolder+'/' + file_name# + '.jpg'
     urllib.request.urlretrieve(url, full_path)
+
+def yt_dlp_monitor(self, d):
+    global final_filename
+    final_filename  = d.get('info_dict').get('_filename')
+    print("final_filename",final_filename)
+    # You could also just assign `d` here to access it and see all the data or even `print(d)` as it updates frequently
     
 def download_video(browser,tweet_url,user):
+    global final_filename
     #open new tab
     #browser.find_element(By.TAG_NAME,'body').send_keys(Keys.COMMAND + 't') 
     #browser.find_element_by_tag_name('body').send_keys(Keys.CONTROL + Keys.TAB)
@@ -85,12 +93,30 @@ def download_video(browser,tweet_url,user):
                 if request.response:
                     if "fmp4" in request.url:
                         if videoid in request.url:
+                            f=furl(request.url)
+                            fileid=str(f.path.segments[-1]).split(".")[0]
+
+                            
+
                             URLS = [request.url]
                             ydl_opts = {
-                                    'outtmpl': destfolder+'/%(title)s-%(id)s.%(ext)s'
+                                    'outtmpl': destfolder+'/%(title)s.%(ext)s',
+                                   # "progress_hooks": [yt_dlp_monitor]  
                                 }
                             with YoutubeDL(ydl_opts) as ydl:
-                                ydl.download(URLS)
+                                info = ydl.extract_info(URLS[0])
+                                video_title = info.get('title', None)
+                                video_ext = info.get('ext', None)
+                                video_fname = destfolder+"/"+f"{video_title}.{video_ext}"
+                                video_fname_tmp = destfolder+"/"+f"{video_title}_tmp.{video_ext}" 
+                                
+                                #ydl.download(URLS)
+                                sleep(0.2)
+                                #remux the video to avoid data moshing effect
+                                os.system("ffmpeg -i "+video_fname+" -c:v copy -c:a copy "+video_fname_tmp)
+                                os.remove(video_fname)
+                                #rename back the video file
+                                os.rename(video_fname_tmp, video_fname)
                             break
                         
     #except:
@@ -99,6 +125,9 @@ def download_video(browser,tweet_url,user):
     browser.close()
     browser.switch_to.window(browser.window_handles[0])
     
+
+
+
 def create_config(config_file_path, user, pwd):
     config = configparser.ConfigParser()
     config.add_section('Credentials')
