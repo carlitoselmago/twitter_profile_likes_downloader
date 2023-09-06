@@ -88,10 +88,12 @@ while True:
                         #get post url
                         
                         print("posturl",posturl)
-                        
-                        download_video(browser,posturl,userid)
-                        sleep(2)
-                        print("")
+                        try:
+                            download_video(browser,posturl,userid)
+                            sleep(2)
+                            print("")
+                        except:
+                            print("could not download video")
                     
             
             DB.insertpost(posturl)
