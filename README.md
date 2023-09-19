@@ -5,7 +5,7 @@ Downloads your twitter likes media (will discard text) locally using sellenium (
 ## install
 
 Install requirements.txt
-
+Install ffmpeg
 run 
 ```
 python -m seleniumwire extractcert
@@ -26,4 +26,5 @@ tweets saved will be stored in posts.db if you need to reset the already downloa
 
 ## TODO:
 
-- Move scroll to download all posts
+- test headless mode
+- add options thru a terminal menu to choose likes page or any other page
