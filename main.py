@@ -43,7 +43,9 @@ wait = WebDriverWait(browser, 30)
 
 sleep(3)
 wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "article")))
+
 posts=browser.find_elements(By.CSS_SELECTOR,'div[data-testid="cellInnerDiv"]')
+
 
 for p in posts:
     #get posturl as id
