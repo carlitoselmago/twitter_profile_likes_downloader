@@ -106,7 +106,7 @@ while True:
     #scroll down to grab more posts
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     print("New scroll batch")
-    sleep(2)
+    sleep(4)
 
 print("END:::::::::::::::::::::::::::::::::::::::::::::")
 DB.close()
