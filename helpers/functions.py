@@ -113,11 +113,11 @@ def download_video(browser,tweet_url,user):
                 
                 # Download the video
                 ydl.download([tweet_url])
-                sleep(0.2)
+                sleep(1)
                 
                 # Remux the video to avoid data moshing effect
                 os.system(f"ffmpeg -i {video_fname} -c:v copy -c:a copy {video_fname_tmp}")
-                
+                sleep(1)
                 # Remove the original file and rename the temporary file
                 os.remove(video_fname)
                 os.rename(video_fname_tmp, video_fname)
