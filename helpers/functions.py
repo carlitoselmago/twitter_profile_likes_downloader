@@ -62,8 +62,12 @@ def download_video(browser,tweet_url,user):
 
     browser.get(tweet_url)
 
-    sleep(1)
+    sleep(5)
     wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "video")))
+
+    # Click on the video element
+    video_component = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-testid="videoComponent"]')))
+    video_component.click()
     poster=browser.find_element(By.CSS_SELECTOR,'video[poster]').get_attribute("poster")
     print("poster::::::::::::",poster)
     parts = urlparse(poster).path.split('/')
@@ -86,38 +90,40 @@ def download_video(browser,tweet_url,user):
             i1, i2 = parts.index('ext_tw_video_thumb')+1, parts.index('img')
               
         if is_video:
-            videoid = '/'.join(parts[i1:i2])
-            print("video ID",videoid)
-            # Access requests via the `requests` attribute
-            for request in browser.requests:
-                if request.response:
-                    if "fmp4" in request.url:
-                        if videoid in request.url:
-                            f=furl(request.url)
-                            fileid=str(f.path.segments[-1]).split(".")[0]
 
-                            
+            # Extract the video ID from the tweet URL
+            parts = tweet_url.split('/')
+            videoid = parts[-3]  # Assuming the video ID is the third-to-last part of the URL
+            videoid = videoid.replace("/pu", "")
+            print("Video ID:", videoid)
 
-                            URLS = [request.url]
-                            ydl_opts = {
-                                    'outtmpl': destfolder+'/%(title)s.%(ext)s',
-                                   # "progress_hooks": [yt_dlp_monitor]  
-                                }
-                            with YoutubeDL(ydl_opts) as ydl:
-                                info = ydl.extract_info(URLS[0])
-                                video_title = info.get('title', None)
-                                video_ext = info.get('ext', None)
-                                video_fname = destfolder+"/"+f"{video_title}.{video_ext}"
-                                video_fname_tmp = destfolder+"/"+f"{video_title}_tmp.{video_ext}" 
-                                
-                                #ydl.download(URLS)
-                                sleep(0.2)
-                                #remux the video to avoid data moshing effect
-                                os.system("ffmpeg -i "+video_fname+" -c:v copy -c:a copy "+video_fname_tmp)
-                                os.remove(video_fname)
-                                #rename back the video file
-                                os.rename(video_fname_tmp, video_fname)
-                            break
+            # Define yt-dlp options including cookies from Firefox
+            ydl_opts = {
+                'outtmpl': destfolder + f'/{videoid}.%(ext)s',
+                'cookiesfrombrowser': ('firefox',),
+            }
+
+            # Create an instance of yt_dlp with the specified options
+            with YoutubeDL(ydl_opts) as ydl:
+                # Extract video information
+                info = ydl.extract_info(tweet_url)
+                video_ext = info.get('ext', None)
+                video_fname = destfolder + f"/{videoid}.{video_ext}"
+                video_fname_tmp = destfolder + f"/{videoid}_tmp.{video_ext}"
+                
+                # Download the video
+                ydl.download([tweet_url])
+                sleep(0.2)
+                
+                # Remux the video to avoid data moshing effect
+                os.system(f"ffmpeg -i {video_fname} -c:v copy -c:a copy {video_fname_tmp}")
+                
+                # Remove the original file and rename the temporary file
+                os.remove(video_fname)
+                os.rename(video_fname_tmp, video_fname)
+                print("Video downloaded and processed successfully!")
+              
+            
                         
     #except:
     #    print("could not find amplify_video_thumb")

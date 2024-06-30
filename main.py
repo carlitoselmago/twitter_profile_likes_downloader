@@ -95,8 +95,8 @@ while True:
                             download_video(browser,posturl,userid)
                             sleep(2)
                             print("")
-                        except:
-                            print("could not download video")
+                        except Exception as e:
+                            print("could not download video",e)
                     
             
             DB.insertpost(posturl)
