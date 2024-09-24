@@ -74,59 +74,61 @@ def download_video(browser,tweet_url,user):
     is_video=True
     #for p in parts:
     #    print (p)
+    try:
+        if "tweet_video_thumb" in poster:
+            #it's an animated gif  
+            is_video=False
+            filename=parts[-1].split(".")[0]+".mp4"
+            url="https://video.twimg.com/tweet_video/"+filename
+            print("gif url",url)
+            full_path=userfolder(user)+'/' +filename
+            urllib.request.urlretrieve(url, full_path)
+        else:
+            try:
+                i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
+            except:
+                i1, i2 = parts.index('ext_tw_video_thumb')+1, parts.index('img')
+                  
+            if is_video:
 
-    if "tweet_video_thumb" in poster:
-        #it's an animated gif  
-        is_video=False
-        filename=parts[-1].split(".")[0]+".mp4"
-        url="https://video.twimg.com/tweet_video/"+filename
-        print("gif url",url)
-        full_path=userfolder(user)+'/' +filename
-        urllib.request.urlretrieve(url, full_path)
-    else:
-        try:
-            i1, i2 = parts.index('amplify_video_thumb')+1, parts.index('img')
-        except:
-            i1, i2 = parts.index('ext_tw_video_thumb')+1, parts.index('img')
-              
-        if is_video:
+                # Extract the video ID from the tweet URL
+                parts = tweet_url.split('/')
+                videoid = parts[-3]  # Assuming the video ID is the third-to-last part of the URL
+                videoid = videoid.replace("/pu", "")
+                print("Video ID:", videoid)
 
-            # Extract the video ID from the tweet URL
-            parts = tweet_url.split('/')
-            videoid = parts[-3]  # Assuming the video ID is the third-to-last part of the URL
-            videoid = videoid.replace("/pu", "")
-            print("Video ID:", videoid)
+                # Define yt-dlp options including cookies from Firefox
+                ydl_opts = {
+                    'outtmpl': destfolder + f'/{videoid}.%(ext)s',
+                    'cookiesfrombrowser': ('firefox',),
+                }
 
-            # Define yt-dlp options including cookies from Firefox
-            ydl_opts = {
-                'outtmpl': destfolder + f'/{videoid}.%(ext)s',
-                'cookiesfrombrowser': ('firefox',),
-            }
-
-            # Create an instance of yt_dlp with the specified options
-            with YoutubeDL(ydl_opts) as ydl:
-                # Extract video information
-                info = ydl.extract_info(tweet_url)
-                video_ext = info.get('ext', None)
-                video_fname = destfolder + f"/{videoid}.{video_ext}"
-                video_fname_tmp = destfolder + f"/{videoid}_tmp.{video_ext}"
+                # Create an instance of yt_dlp with the specified options
+                with YoutubeDL(ydl_opts) as ydl:
+                    # Extract video information
+                    info = ydl.extract_info(tweet_url)
+                    video_ext = info.get('ext', None)
+                    video_fname = destfolder + f"/{videoid}.{video_ext}"
+                    video_fname_tmp = destfolder + f"/{videoid}_tmp.{video_ext}"
+                    
+                    # Download the video
+                    ydl.download([tweet_url])
+                    sleep(1)
+                    
+                    # Remux the video to avoid data moshing effect
+                    os.system(f"ffmpeg -i {video_fname} -c:v copy -c:a copy {video_fname_tmp}")
+                    sleep(1)
+                    # Remove the original file and rename the temporary file
+                    os.remove(video_fname)
+                    os.rename(video_fname_tmp, video_fname)
+                    print("Video downloaded and processed successfully!")
+                  
                 
-                # Download the video
-                ydl.download([tweet_url])
-                sleep(1)
-                
-                # Remux the video to avoid data moshing effect
-                os.system(f"ffmpeg -i {video_fname} -c:v copy -c:a copy {video_fname_tmp}")
-                sleep(1)
-                # Remove the original file and rename the temporary file
-                os.remove(video_fname)
-                os.rename(video_fname_tmp, video_fname)
-                print("Video downloaded and processed successfully!")
-              
-            
-                        
-    #except:
-    #    print("could not find amplify_video_thumb")
+                            
+        #except:
+        #    print("could not find amplify_video_thumb")
+    except:
+        pass
     
     browser.close()
     browser.switch_to.window(browser.window_handles[0])

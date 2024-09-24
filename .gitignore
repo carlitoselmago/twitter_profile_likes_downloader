@@ -3,7 +3,9 @@
 *.db
 *.chromedriver
 *.ini
+downloaded
 downloaded/*
+downloaded/readme.txt
 *.mp4
 # Byte-compiled / optimized / DLL files
 __pycache__/
