@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from time import sleep
 from helpers.functions import *
-from seleniumwire import webdriver
+#from seleniumwire import webdriver
 from helpers.db import db
 import sys
 
@@ -17,7 +17,7 @@ DB=db()
 browser = webdriver.Firefox()
 browser.maximize_window()
 wait = WebDriverWait(browser, 30)
-browser.get('https://twitter.com/login')
+browser.get('https://x.com/login')
 
 sleep(3)
 
@@ -38,7 +38,7 @@ username_input.send_keys(Keys.ENTER)
 sleep(3)
 
 #now get to the liked posts page
-browser.get('https://twitter.com/'+user+'/likes')
+browser.get('https://x.com/'+user+'/likes')
 wait = WebDriverWait(browser, 30)
 
 sleep(3)
