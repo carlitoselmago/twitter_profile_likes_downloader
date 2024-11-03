@@ -93,10 +93,10 @@ def download_video(browser,tweet_url,user):
 
                 # Extract the video ID from the tweet URL
                 parts = tweet_url.split('/')
-                videoid = parts[-3]  # Assuming the video ID is the third-to-last part of the URL
+                videoid = parts[-1]  # last element of url
                 videoid = videoid.replace("/pu", "")
                 print("Video ID:", videoid)
-
+                print("::::::::::::::::::::::::::::::::::::::::::::::")
                 # Define yt-dlp options including cookies from Firefox
                 ydl_opts = {
                     'outtmpl': destfolder + f'/{videoid}.%(ext)s',

@@ -81,8 +81,8 @@ while True:
                                     try:
                                         downloadmedia(imgsrc,userid)
                                         print("")
-                                    except:
-                                        print("could not download media")
+                                    except Exception as e:
+                                        print("could not download media",e)
 
                         #   video
                         video_elements= p.find_elements(By.TAG_NAME, "video")
