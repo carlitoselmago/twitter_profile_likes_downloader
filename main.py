@@ -58,7 +58,7 @@ while True:
             print("PROCESS:::",posturl)
 
             if not DB.postexists(posturl):
-
+                downloaded=False
                 #get userid
                 avatar=p.find_element(By.CSS_SELECTOR,'div[data-testid="Tweet-User-Avatar"]')
                 if avatar:
@@ -79,7 +79,9 @@ while True:
                                 if "/media/" in imgsrc:
                                     print(imgsrc)
                                     try:
-                                        downloadmedia(imgsrc,userid)
+                                        #downloadmedia(imgsrc,userid)
+                                        downloadmedia(imgsrc, browser, userid)
+                                        downloaded=True
                                         print("")
                                     except Exception as e:
                                         print("could not download media",e)
@@ -94,13 +96,14 @@ while True:
                             try:
                                 #TODO: close the tab if couldn't download video, so move the try to inside the function
                                 download_video(browser,posturl,userid)
+                                downloaded=True
                                 sleep(2)
                                 print("")
                             except Exception as e:
                                 print("could not download video",e)
                         
-                
-                DB.insertpost(posturl)
+                if downloaded:
+                    DB.insertpost(posturl)
             else:
                 print("already saved, skipping....")
         except Exception as e:

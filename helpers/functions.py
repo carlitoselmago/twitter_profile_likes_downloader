@@ -30,14 +30,34 @@ def userfolder(user):
 
     return downloadfolder+user
 
-def downloadmedia(url,user):
-    destfolder=userfolder(user)
-    f=furl(url)
-    file_name=str(f.path.segments[-1])+"."+f.args["format"]
-    f.set({"format":"jpg","name":"large"})
-    url=f.url
-    full_path = destfolder+'/' + file_name# + '.jpg'
-    urllib.request.urlretrieve(url, full_path)
+def downloadmedia(url, driver, user):
+    # Create a folder for the user (just as an example)
+    destfolder = userfolder(user)  # your existing function
+    os.makedirs(destfolder, exist_ok=True)
+
+    # Extract cookies from Selenium
+    session = requests.Session()
+    for cookie in driver.get_cookies():
+        session.cookies.set(cookie["name"], cookie["value"])
+
+    # (Optional) set headers if needed
+    # session.headers.update({"User-Agent": "Mozilla/5.0 ...", ...})
+
+    # Now make the request using the session
+    response = session.get(url)
+    if response.status_code == 200:
+        # figure out file_name from the URL or another method
+        f=furl(url)
+        file_name=str(f.path.segments[-1])+"."+f.args["format"]
+        f.set({"format":"jpg","name":"large"})
+        url=f.url
+        
+        full_path = os.path.join(destfolder, file_name)
+        with open(full_path, "wb") as f:
+            f.write(response.content)
+        print("Downloaded to", full_path)
+    else:
+        print("Error:", response.status_code)
 
 def yt_dlp_monitor(self, d):
     global final_filename
